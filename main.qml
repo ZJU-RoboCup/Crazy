@@ -6,7 +6,7 @@ import ZSS 1.0 as ZSS
 ApplicationWindow{
     visible:true;
     width:580;
-    height:380;
+    height:370;
     /*
     minimumHeight: height;
     minimumWidth: width;
@@ -208,7 +208,6 @@ ApplicationWindow{
                     //DribLevel:(0, dribbleMaxLevel)
                     SpinBox{ minimumValue:0; maximumValue:crazyShow.dribbleMaxLevel; value:parent.dribbleLevel;width:parent.itemWidth
                         onEditingFinished:{parent.dribbleLevel = value;}}
-                    Text{ text:" " }
                     Text{ text:" " }
 
                     Rectangle{

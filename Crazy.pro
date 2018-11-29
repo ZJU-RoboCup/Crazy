@@ -1,7 +1,8 @@
 TEMPLATE = app
 QT += quick
 CONFIG += c++11
-TARGET = Crazy2018
+TARGET = Crazy
+DESTDIR = $$PWD/../ZBin
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
