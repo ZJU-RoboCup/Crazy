@@ -7,18 +7,20 @@ import QtGamepad 1.0
 import ZSS 1.0 as ZSS
 ApplicationWindow{
     visible:true;
-    height:600;
+    height:630;
     width:500;
     color: "#333"
     id:window;
     ZSS.Interaction { id : interaction; }
+
     Timer{
         id:timer;
         interval:16;//15 ms
         running:false;
         repeat:true;
         onTriggered: {
-            crazyShow.updateFromGamepad();
+            if(switchControl.checked)
+                crazyShow.updateFromGamepad();
             crazyShow.updateCommand();
             interaction.sendCommand();
         }
@@ -42,11 +44,27 @@ ApplicationWindow{
                         verticalItemAlignment: Grid.AlignVCenter;
                         horizontalItemAlignment: Grid.AlignLeft;
                         columnSpacing: 10;
-                        rowSpacing: 0;
+                        rowSpacing: 10;
                         columns:4;
                         width:parent.width;
                         property int itemWidth : (width - (columns-1) * columnSpacing - 2*padding)/columns;
                         enabled: !crazyConnect.ifConnected;
+                        ZText{
+                            text: qsTr("Control Mode");
+                        }
+                        Switch {
+                            id : switchControl;
+                            checked :window.useGamepad
+                            onClicked: {
+                                window.useGamepad = checked;
+                            }
+                        }
+                        ZText{
+                            text: qsTr(" ");
+                        }
+                        ZText{
+                            text: qsTr(" ");
+                        }
                         ZText{
                             text: qsTr("Address");
                         }
@@ -114,11 +132,11 @@ ApplicationWindow{
                         property int dribbleLevel : 3;//DribLevel
                         property int rushSpeed : 20;//RushSpeed
 
-                        property int m_VEL : 200//MaxVel
-                        property int velocityRMax : 511;//MaxVelR
+                        property int m_VEL : 150//MaxVel
+                        property int velocityRMax : 1023;//MaxVelR
                         property int power : 20;//KickPower
 
-                        property int m_VELR : 1023
+                        property int m_VELR : 200
                         property int velocityMax : 511;
                         property int dribbleMaxLevel : 3;
                         property int kickPowerMax: 127;
@@ -252,8 +270,32 @@ ApplicationWindow{
                             interaction.updateCommandParams(crazyShow.robotID,crazyShow.velX,crazyShow.velY,crazyShow.velR,crazyShow.dribble,crazyShow.dribbleLevel,crazyShow.mode,crazyShow.shoot,crazyShow.power);
                         }
                         function updateFromGamepad(){
-                            crazyShow.velX = -parseInt(gamepad.axisLeftY*100)/100.0*crazyShow.m_VEL;
-                            crazyShow.velY = parseInt(gamepad.axisLeftX*100)/100.0*crazyShow.m_VEL;
+                            crazyShow.velX = -parseInt(gamepad.axisLeftY*10)/10.0*crazyShow.m_VEL;
+                            crazyShow.velY = parseInt(gamepad.axisLeftX*10)/10.0*crazyShow.m_VEL;
+                            crazyShow.velR = parseInt(gamepad.axisRightX*10)/10.0*crazyShow.m_VELR;
+                            if(gamepad.buttonX > 0){
+                                crazyShow.power = parseInt(gamepad.buttonL2*10)/10.0*crazyShow.kickPowerMax;
+                                crazyShow.mode = true;
+                                crazyShow.shoot = gamepad.buttonX;
+                            }
+                            else if(gamepad.buttonY > 0){
+                                crazyShow.power = parseInt(gamepad.buttonL2*10)/10.0*crazyShow.kickPowerMax;
+                                crazyShow.mode = false;
+                                crazyShow.shoot = gamepad.buttonY;
+
+                            }
+                            else{
+                                crazyShow.shoot = 0;
+                            }
+
+                            if(gamepad.buttonR2 > 0){
+                                crazyShow.dribbleLevel =  parseInt(gamepad.buttonR2*10)/10.0*crazyShow.dribbleMaxLevel;
+                                crazyShow.dribble = true ;
+                            }
+                            else{
+                                crazyShow.dribble = false ;
+                            }
+
                             console.log(velX,velY);
                         }
                         function limitVel(vel,minValue,maxValue){
@@ -496,6 +538,11 @@ ApplicationWindow{
             Gamepad {
                 id: gamepad
                 deviceId: GamepadManager.connectedGamepads.length > 0 ? GamepadManager.connectedGamepads[0] : -1
+                property int count : 0;
+                onButtonGuideChanged: {
+                    if(gamepad.buttonGuide == false)
+                        switchControl.checked = !switchControl.checked
+                }
             }
         }
     }
