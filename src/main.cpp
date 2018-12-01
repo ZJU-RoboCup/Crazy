@@ -14,6 +14,6 @@ int main(int argc, char *argv[]) {
     app.setFont(QFont("Microsoft YaHei",9));
     qmlRegister();
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+    engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
     return app.exec();
 }

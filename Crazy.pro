@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT += quick
+QT += qml quick gamepad
 CONFIG += c++11
 TARGET = Crazy
 DESTDIR = $$PWD/../ZBin
