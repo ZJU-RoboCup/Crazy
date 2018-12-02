@@ -21,8 +21,8 @@ ApplicationWindow{
         onTriggered: {
             if(switchControl.checked)
                 crazyShow.updateFromGamepad();
-            crazyShow.updateCommand();
-            interaction.sendCommand();
+                crazyShow.updateCommand();
+                interaction.sendCommand();
         }
     }
     Column{
@@ -357,6 +357,7 @@ ApplicationWindow{
                         onClicked:{
                             handleClickEvent();
                         }
+
                         function handleClickEvent(){
                             if(ifStarted){
                                 timer.stop();
@@ -542,6 +543,22 @@ ApplicationWindow{
                 onButtonGuideChanged: {
                     if(gamepad.buttonGuide == false)
                         switchControl.checked = !switchControl.checked
+                }
+                onButtonStartChanged: {
+                    if(gamepad.buttonStart == false){
+//                        timer.start();
+                        crazyStart.handleClickEvent();
+                    }
+                }
+                onButtonUpChanged: {
+                    if(gamepad.buttonUp == false){
+                        crazyShow.robotID += 1;
+                    }
+                }
+                onButtonDownChanged: {
+                    if(gamepad.buttonDown == false){
+                        crazyShow.robotID -= 1;
+                    }
                 }
             }
         }
