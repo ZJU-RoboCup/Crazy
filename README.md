@@ -13,11 +13,12 @@ You can use Qt Creator to open this project and build it, or just run cmake_buil
 ![Crazy](./doc/Crazy.png)
 
 ## How to use this Crazy with Controller
-* 1. If you want to use the original crazy with keyboard, feel free to use it without switching the "Control Mode" switch on the up-left corner.
-* 2. if you are ready to use the controller, switch the "Control Mode" switch and remember this by doing this, you will disable your keyboard manipulation.
-* 3. Once you are in the Controller Mode, please read the followings.
-* 4. The Left Joystick will enable your robot to move in X and Y direction.
-* 5. The Right Joystick will enable your robot to spin.
-* 6. The Right Trigger will give the robot a dribbling command and also a dribbling level according to  the force you applied.
-* 7. The Left Trigger will give the Kick Power according to the force, and if you press X(or Y) at the same time, the robot will flat kick(or chip kick) the ball with the specific power .
-* 8. TO BE CONTINUE........
+* If you want to use the original crazy with keyboard, feel free to use it without switching the "Control Mode" switch on the up-left corner.
+* if you are ready to use the controller, switch the "Control Mode" switch and remember this by doing this, you will disable your keyboard manipulation.
+* Once you are in the Controller Mode, please read the followings.
+* The Left Joystick will enable your robot to move in X and Y direction.
+* The Right Joystick will enable your robot to spin.
+* The Right Trigger will give the robot a dribbling command and also a dribbling level according to  the force you applied.
+* The Left Trigger will give the Kick Power according to the force, and if you press X(or Y) at the same time, the robot will flat kick(or chip kick) the ball with the specific power .
+* Click  "UP" & "DOWN" button to increase and decrease the robot ID.
+* Click "START" button to start or stop the crazy.
