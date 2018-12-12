@@ -13,6 +13,8 @@ ApplicationWindow{
     id:window;
     ZSS.Interaction { id : interaction; }
 
+    property bool useGamepad:false;
+
     Timer{
         id:timer;
         interval:16;//15 ms
