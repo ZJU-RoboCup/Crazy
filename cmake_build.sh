@@ -3,7 +3,7 @@ if [ ! -d "build" ]; then
 fi
 
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -A x64 -DCMAKE_BUILD_TYPE=Release ..
 cmake --build . --config Release
 cd ..
 
