@@ -49,10 +49,7 @@ include_directories(${HEAD})
 # need to add qrc file(which include the path of qml files) and rc file(which include the path of icon)
 add_executable(${PROJ_NAME} ${SOURCE} ${QML_QRC} ${RC_FILE})
 
-# set output path
-set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT})
-set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUTPUT})
-set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT})
-
 # link Qt5's components that this project need
 target_link_libraries(${PROJ_NAME} Qt5::QuickControls2)
+
+install(TARGETS ${PROJ_NAME} RUNTIME DESTINATION ${CMAKE_CURRENT_LIST_DIR}/bin)

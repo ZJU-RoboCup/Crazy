@@ -4,7 +4,7 @@ fi
 
 cd build
 cmake -A x64 -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --config Release
+cmake --build . --config Release --target install
 cd ..
 
 if [ ! -d "../ZBin" ]; then
