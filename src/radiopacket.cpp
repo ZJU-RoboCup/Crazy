@@ -2,8 +2,9 @@
 #include <QElapsedTimer>
 
 namespace{
-    static const int TRANSMIT_PACKET_SIZE = 25;
-    static const int START_PACKET_SIZE = 6;
+    const int TRANSMIT_PACKET_SIZE = 25;
+    const int START_PACKET_SIZE = 6;
+    const int PORT = 1030;
 }
 
 RadioPacket::RadioPacket(QUdpSocket* udpSender)
@@ -34,15 +35,15 @@ RadioPacket::RadioPacket(QUdpSocket* udpSender)
 }
 
 void RadioPacket::sendStartPacket(int index){
-    if(udpSender != NULL){
+    if(udpSender != nullptr){
         switch (index) {
-        case 8:
-            udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, 1030);
-            qDebug() << startPacket1;
+        case 1: // No.8
+            udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, PORT);
+            qDebug() << "Start Packet:" << startPacket1.toHex();
             break;
-        case 6:
-            udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, address, 1030);
-            qDebug()<<startPacket2;
+        case 0: // No.6
+            udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, address, PORT);
+            qDebug() << "Start Packet:" << startPacket2.toHex();
             break;
         default:
             break;
@@ -61,7 +62,7 @@ bool RadioPacket::sendCommand(){
     if(udpSender != NULL){
         encode();
         qDebug() << "0x" << transmitPacket.toHex();
-        udpSender->writeDatagram(transmitPacket.data(),TRANSMIT_PACKET_SIZE, address, 1030);
+        udpSender->writeDatagram(transmitPacket.data(),TRANSMIT_PACKET_SIZE, address, PORT);
         return true;
     }
     return false;
