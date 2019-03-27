@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/sj4dmcxhkt4sb8ax?svg=true)](https://ci.appveyor.com/project/WangYunkai/crazy)
+
 ## Introduction to Crazy
 * This is a robot control software on the computer for ZJUNlict (Communication Protocol V1.6 since 2018.11.06).
 * This is a cross-platform software, so you can run it on Linux, Windows, macOS, iOS, Android, etc.
