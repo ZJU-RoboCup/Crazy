@@ -22,15 +22,15 @@ RadioPacket::RadioPacket(QUdpSocket* udpSender)
     startPacket1[1] = 0x5a;
     startPacket1[2] = 0x5a;
     startPacket1[3] = 0x01;
-    startPacket1[4] = 0x01;
-    startPacket1[5] = 0xa6;
+    startPacket1[4] = 0x02;
+    startPacket1[5] = 0xa7;
 
     startPacket2[0] = 0xf0;
     startPacket2[1] = 0x18;
     startPacket2[2] = 0x5a;
     startPacket2[3] = 0x01;
-    startPacket2[4] = 0x01;
-    startPacket2[5] = 0x64;
+    startPacket2[4] = 0x02;
+    startPacket2[5] = 0x65;
     encode();
 }
 
