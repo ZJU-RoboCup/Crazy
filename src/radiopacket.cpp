@@ -69,6 +69,7 @@ bool RadioPacket::sendCommand(){
 }
 
 bool RadioPacket::encode(){
+    velR = velR * 4.0;
     transmitPacket[0] = packageType | gameStatus;
     //RobotID
     transmitPacket[1] = (robotID) & 0x0f;

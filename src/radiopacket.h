@@ -10,7 +10,7 @@ public:
     void sendStartPacket(int index);
     bool sendCommand();
     void updateCommandParams(int robotID,int velX,int velY,int velR,bool ctrl,int ctrlLevel,bool mode,bool shoot,int power){
-        this->robotID = robotID - 1;
+        this->robotID = robotID;
         this->velX = velX; this->velY = velY; this->velR = velR;
         this->ctrl = ctrl;
         this->shootMode = mode;this->shoot = shoot; this->shootPowerLevel = power;
