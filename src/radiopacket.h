@@ -4,9 +4,9 @@
 #include <QUdpSocket>
 #include <QtDebug>
 
-class RadioPacket{
+class RadioPacket : public QObject{
 public:
-    explicit RadioPacket(QUdpSocket* udpSender);
+    explicit RadioPacket(QObject *parent,QUdpSocket* udpSender,QUdpSocket*);
     void sendStartPacket(int index);
     bool sendCommand();
     void updateCommandParams(int robotID,int velX,int velY,int velR,bool ctrl,int ctrlLevel,bool mode,bool shoot,int power){
@@ -17,11 +17,13 @@ public:
         this->ctrlPowerLevel = ctrlLevel;
     }
     void updateAddress(QHostAddress);
+public slots:
+    void storeData();
 private:
     QByteArray startPacket1;
     QByteArray startPacket2;
     QByteArray transmitPacket;
-    QUdpSocket* udpSender;
+    QUdpSocket* udpSender,* udpReceiver;
     bool encode();
 private:
     bool shoot;

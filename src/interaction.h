@@ -10,7 +10,7 @@ class Interaction : public QObject{
     Q_OBJECT
 public:
     Interaction(QObject *parent = 0);
-    ~Interaction(){}
+    ~Interaction();
     Q_INVOKABLE QStringList getCrazySetting(int itemIndex) const;
     Q_INVOKABLE void sendCrazySetting(int itemIndex,int index);
     Q_INVOKABLE int getDefaultIndex(int itemIndex) const;
@@ -27,7 +27,7 @@ private:
     QList<quint8> frequency;
     QStringList stringFrequency;
     int frequencyIndex;
-    QUdpSocket *udpSender;
+    QUdpSocket *udpSender,*udpReceiver;
     RadioPacket *radioPacket;
 };
 

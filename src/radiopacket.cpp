@@ -1,17 +1,19 @@
 ﻿#include "radiopacket.h"
 #include <QElapsedTimer>
-
+#include <thread>
 namespace{
     const int TRANSMIT_PACKET_SIZE = 25;
     const int START_PACKET_SIZE = 6;
     const int PORT = 1030;
+    std::thread t;
 }
 
-RadioPacket::RadioPacket(QUdpSocket* udpSender)
-    : startPacket1(START_PACKET_SIZE,0)
+RadioPacket::RadioPacket(QObject *parent,QUdpSocket* udpSender,QUdpSocket* udpReceiver)
+    : QObject(parent)
+    , startPacket1(START_PACKET_SIZE,0)
     , startPacket2(START_PACKET_SIZE,0)
     , transmitPacket(TRANSMIT_PACKET_SIZE,0)
-    , udpSender(udpSender)
+    , udpSender(udpSender),udpReceiver(udpReceiver)
     , shoot(false), ctrl(false), shootMode(false), robotID(0)
     , velX(0), velY(0), velR(0)
     , ctrlPowerLevel(2), shootPowerLevel(0)
@@ -26,22 +28,53 @@ RadioPacket::RadioPacket(QUdpSocket* udpSender)
     startPacket1[5] = 0xa7;
 
     startPacket2[0] = 0xf0;
-    startPacket2[1] = 0x18;
+    startPacket2[1] = 0x5a;
     startPacket2[2] = 0x5a;
-    startPacket2[3] = 0x01;
+    startPacket2[3] = 0x02;
     startPacket2[4] = 0x02;
-    startPacket2[5] = 0x65;
+    startPacket2[5] = 0xa8;
     encode();
+
+    udpReceiver->bind(QHostAddress::AnyIPv4, PORT, QUdpSocket::ShareAddress);
+    t = std::thread([&]{storeData();});
 }
 
 void RadioPacket::sendStartPacket(int index){
     if(udpSender != nullptr){
         switch (index) {
         case 1: // No.8
+            startPacket1[0] = (char)0xf0;
+            startPacket1[1] = (char)0x5a;
+            startPacket1[2] = (char)0x5a;
+            startPacket1[3] = (char)0x01;
+            startPacket1[4] = (char)0x02;
+            startPacket1[5] = (char)0xa7;
+
+            startPacket2[0] = (char)0xf0;
+            startPacket2[1] = (char)0x5a;
+            startPacket2[2] = (char)0x5a;
+            startPacket2[3] = (char)0x02;
+            startPacket2[4] = (char)0x02;
+            startPacket2[5] = (char)0xa8;
             udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, PORT);
+            udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, address, PORT);
             qDebug() << "Start Packet:" << startPacket1.toHex();
             break;
         case 0: // No.6
+            startPacket1[0] = (char)0xf0;
+            startPacket1[1] = (char)0x18;
+            startPacket1[2] = (char)0x5a;
+            startPacket1[3] = (char)0x01;
+            startPacket1[4] = (char)0x02;
+            startPacket1[5] = (char)0x65;
+
+            startPacket2[0] = (char)0xf0;
+            startPacket2[1] = (char)0x18;
+            startPacket2[2] = (char)0x18;
+            startPacket2[3] = (char)0x02;
+            startPacket2[4] = (char)0x02;
+            startPacket2[5] = (char)0x24;
+            udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, PORT);
             udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, address, PORT);
             qDebug() << "Start Packet:" << startPacket2.toHex();
             break;
@@ -53,6 +86,20 @@ void RadioPacket::sendStartPacket(int index){
 
 void RadioPacket::updateAddress(QHostAddress address){
     this->address = address;
+    qDebug() << "get address : " << address;
+}
+
+void RadioPacket::storeData(){
+    static QByteArray datagram;
+    qDebug() << "in storeData function!!!";
+    while(true){
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        while (udpReceiver->hasPendingDatagrams()) {
+            datagram.resize(udpReceiver->pendingDatagramSize());
+            udpReceiver->readDatagram(datagram.data(), datagram.size());
+            qDebug() << "recv : 0x" << datagram.toHex() << quint16(datagram[12]);
+        }
+    }
 }
 
 bool RadioPacket::sendCommand(){
@@ -61,7 +108,9 @@ bool RadioPacket::sendCommand(){
     if(times == 0) timer.start();
     if(udpSender != NULL){
         encode();
-        qDebug() << "0x" << transmitPacket.toHex();
+        if(shootPowerLevel > 0 && shoot == true){
+            qDebug() << "sent : 0x" << transmitPacket.toHex() << shootPowerLevel;
+        }
         udpSender->writeDatagram(transmitPacket.data(),TRANSMIT_PACKET_SIZE, address, PORT);
         return true;
     }

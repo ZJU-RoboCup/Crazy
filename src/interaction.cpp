@@ -2,7 +2,8 @@
 
 Interaction::Interaction(QObject *parent):QObject(parent){
     udpSender = new QUdpSocket();
-    radioPacket = new RadioPacket(udpSender);
+    udpReceiver = new QUdpSocket();
+    radioPacket = new RadioPacket(this,udpSender,udpReceiver);
     frequency.append(6);                        stringFrequency.append("6");
     frequency.append(8);                        stringFrequency.append("8");
     address.append(QHostAddress("10.12.225.78"));   stringAddress.append("10.12.225.78");
@@ -13,6 +14,10 @@ Interaction::Interaction(QObject *parent):QObject(parent){
     addressIndex = 0;
     radioPacket->updateAddress(address[addressIndex]);
     frequencyIndex = 1;
+}
+Interaction::~Interaction(){
+    delete udpSender;
+    delete udpReceiver;
 }
 
 QStringList Interaction::getCrazySetting(int itemIndex) const{
