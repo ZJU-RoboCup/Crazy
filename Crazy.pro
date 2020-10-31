@@ -7,10 +7,12 @@ DESTDIR = $$PWD/../ZBin
 DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
+    src/crc/crc.h \
     src/radiopacket.h \
     src/interaction.h
 
 SOURCES += \
+    src/crc/crc.cpp \
     src/main.cpp \
     src/radiopacket.cpp \
     src/interaction.cpp

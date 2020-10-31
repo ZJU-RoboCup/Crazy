@@ -1,4 +1,5 @@
 ﻿#include "radiopacket.h"
+#include "crc/crc.h"
 #include <QElapsedTimer>
 #include <thread>
 namespace{
@@ -6,6 +7,7 @@ namespace{
     const int START_PACKET_SIZE = 6;
     const int PORT = 1030;
     std::thread t;
+    unsigned char calc_add(unsigned char *buf, int len);
 }
 
 RadioPacket::RadioPacket(QObject *parent,QUdpSocket* udpSender,QUdpSocket* udpReceiver)
@@ -39,54 +41,33 @@ RadioPacket::RadioPacket(QObject *parent,QUdpSocket* udpSender,QUdpSocket* udpRe
     t = std::thread([&]{storeData();});
 }
 
-void RadioPacket::sendStartPacket(int index){
+void RadioPacket::sendStartPacket(int frq){
     if(udpSender != nullptr){
-        switch (index) {
-        case 1: // No.8
-            startPacket1[0] = (char)0xf0;
-            startPacket1[1] = (char)0x5a;
-            startPacket1[2] = (char)0x5a;
-            startPacket1[3] = (char)0x01;
-            startPacket1[4] = (char)0x02;
-            startPacket1[5] = (char)0xa7;
+        qDebug() << "frq : " << frq;
+        unsigned char important_data = frq < 8 ? frq*4 : frq*4+58;
+        startPacket1[0] = (char)0xf0;
+        startPacket1[1] = (char)important_data;
+        startPacket1[2] = (char)important_data;
+        startPacket1[3] = (char)0x01;
+        startPacket1[4] = (char)0x02;
+        startPacket1[5] = (char)::calc_add((unsigned char*)startPacket1.data(),START_PACKET_SIZE-1);
 
-            startPacket2[0] = (char)0xf0;
-            startPacket2[1] = (char)0x5a;
-            startPacket2[2] = (char)0x5a;
-            startPacket2[3] = (char)0x02;
-            startPacket2[4] = (char)0x02;
-            startPacket2[5] = (char)0xa8;
-            udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, PORT);
-            udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, address, PORT);
-            qDebug() << "Start Packet:" << startPacket1.toHex();
-            break;
-        case 0: // No.6
-            startPacket1[0] = (char)0xf0;
-            startPacket1[1] = (char)0x18;
-            startPacket1[2] = (char)0x5a;
-            startPacket1[3] = (char)0x01;
-            startPacket1[4] = (char)0x02;
-            startPacket1[5] = (char)0x65;
-
-            startPacket2[0] = (char)0xf0;
-            startPacket2[1] = (char)0x18;
-            startPacket2[2] = (char)0x18;
-            startPacket2[3] = (char)0x02;
-            startPacket2[4] = (char)0x02;
-            startPacket2[5] = (char)0x24;
-            udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, PORT);
-            udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, address, PORT);
-            qDebug() << "Start Packet:" << startPacket2.toHex();
-            break;
-        default:
-            break;
-        }
+        startPacket2[0] = (char)0xf0;
+        startPacket2[1] = (char)important_data;
+        startPacket2[2] = (char)important_data;
+        startPacket2[3] = (char)0x02;
+        startPacket2[4] = (char)0x02;
+        startPacket2[5] = (char)::calc_add((unsigned char*)startPacket2.data(),START_PACKET_SIZE-1);
+        udpSender->writeDatagram((startPacket1.data()),START_PACKET_SIZE, address, PORT);
+        udpSender->writeDatagram((startPacket2.data()),START_PACKET_SIZE, receiveAddress, PORT);
+        qDebug() << "Start Packet:" << startPacket1.toHex();
     }
 }
 
-void RadioPacket::updateAddress(QHostAddress address){
+void RadioPacket::updateAddress(const QHostAddress& address,const QHostAddress& receiveAddress){
     this->address = address;
-    qDebug() << "get address : " << address;
+    this->receiveAddress = receiveAddress;
+    qDebug() << "get address : " << address << receiveAddress;
 }
 
 void RadioPacket::storeData(){
@@ -97,7 +78,8 @@ void RadioPacket::storeData(){
         while (udpReceiver->hasPendingDatagrams()) {
             datagram.resize(udpReceiver->pendingDatagramSize());
             udpReceiver->readDatagram(datagram.data(), datagram.size());
-            qDebug() << "recv : 0x" << datagram.toHex() << quint16(datagram[12]);
+//            if(quint16(datagram[3])!=quint16(0))
+                qDebug() << "recv : 0x" << datagram.toHex() << QString::number((datagram[3]),16);
         }
     }
 }
@@ -108,9 +90,9 @@ bool RadioPacket::sendCommand(){
     if(times == 0) timer.start();
     if(udpSender != NULL){
         encode();
-        if(shootPowerLevel > 0 && shoot == true){
+//        if(shootPowerLevel > 0 && shoot == true){
             qDebug() << "sent : 0x" << transmitPacket.toHex() << shootPowerLevel;
-        }
+//        }
         udpSender->writeDatagram(transmitPacket.data(),TRANSMIT_PACKET_SIZE, address, PORT);
         return true;
     }
@@ -118,10 +100,12 @@ bool RadioPacket::sendCommand(){
 }
 
 bool RadioPacket::encode(){
+
     velR = velR * 4.0;
     transmitPacket[0] = packageType | gameStatus;
     //RobotID
-    transmitPacket[1] = (robotID) & 0x0f;
+//    transmitPacket[1] = (0x80) | ((robotID) & 0x0f);
+    transmitPacket[1] = (report ? 0x80 : 0x00) | ((robotID) & 0x0f);
     transmitPacket[0] = transmitPacket[0] | 0x08;
     //Robot1 Config
     //shoot or chip
@@ -143,4 +127,13 @@ bool RadioPacket::encode(){
     //shoot power
     transmitPacket[21] = (shoot ? shootPowerLevel:0) & 0x7f;
     return true;
+}
+namespace{
+    unsigned char calc_add(unsigned char *buf, int len){
+        unsigned char fcs = 0;
+        for( int i=0; i<len; ++i ){
+            fcs += buf[i];
+        }
+        return fcs;
+    }
 }

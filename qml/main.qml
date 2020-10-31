@@ -95,14 +95,7 @@ ApplicationWindow{
                         onClicked: clickEvent();
                         function clickEvent(){
                             interaction.sendStartPacket(frequency.currentIndex);
-                            switch(frequency.currentIndex){
-                            case 0:
-                                console.log("Connect to Frequency 6");break;
-                            case 1:
-                                console.log("Connect to Frequency 8");break;
-                            default:
-                                console.log("Frequency ERROR !");break;
-                            }
+                                console.log("Frequency! ",frequency.currentIndex);
                         }
                     }
                 }
@@ -126,6 +119,7 @@ ApplicationWindow{
                         property bool shoot : false;//Shoot
                         property bool dribble : false;//Dribb
                         property bool rush : false;//Rush
+                        property bool report : false;
 
                         property int velXStep : 20;//VxStep
                         property int velYStep : 20;//VyStep
@@ -149,8 +143,10 @@ ApplicationWindow{
                             onEditingFinished:{parent.robotID = value}}
                         ZText{ text:"Stop" }
                         Button{ text:qsTr("[Space]"); width:parent.itemWidth}
-                        ZText{ text:" "}
-                        ZText{ text:" "}
+                        ZText{ text:"Report"}
+                        Button{ text:(parent.report? qsTr("true") : qsTr("false"));width:parent.itemWidth
+                            onClicked: { parent.report = !parent.report;}
+                        }
                         ZText{ text:qsTr("Vx [W/S]") }
                         //Vx:(-m_VEL, m_VEL)
                         ZSpinBox{ minimumValue:-crazyShow.m_VEL; maximumValue:crazyShow.m_VEL; value:parent.velX;onEditingFinished:{parent.velX = value;}}
@@ -269,7 +265,7 @@ ApplicationWindow{
                             updateCommand();
                         }
                         function updateCommand(){
-                            interaction.updateCommandParams(crazyShow.robotID,crazyShow.velX,crazyShow.velY,crazyShow.velR,crazyShow.dribble,crazyShow.dribbleLevel,crazyShow.mode,crazyShow.shoot,crazyShow.power);
+                            interaction.updateCommandParams(crazyShow.robotID,crazyShow.velX,crazyShow.velY,crazyShow.velR,crazyShow.dribble,crazyShow.dribbleLevel,crazyShow.mode,crazyShow.shoot,crazyShow.power,crazyShow.report);
                         }
                         function updateFromGamepad(){
                             crazyShow.velX = -parseInt(gamepad.axisLeftY*10)/10.0*crazyShow.m_VEL;
@@ -349,6 +345,7 @@ ApplicationWindow{
                             sequence:"Space"
                             onActivated:crazyShow.handleKeyboardEvent('S');
                         }
+
                     }
                     Button{
                         anchors.right: parent.right;

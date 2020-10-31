@@ -16,12 +16,13 @@ public:
     Q_INVOKABLE int getDefaultIndex(int itemIndex) const;
     Q_INVOKABLE void sendStartPacket(int);
     Q_INVOKABLE void sendCommand(){radioPacket->sendCommand();}
-    Q_INVOKABLE void updateCommandParams(int robotID,int velX,int velY,int velR,bool dribble,int dribbleLevel,bool mode,bool shoot,int power){
-        radioPacket->updateCommandParams(robotID,velX,velY,velR,dribble,dribbleLevel,mode,shoot,power);
+    Q_INVOKABLE void updateCommandParams(int robotID,int velX,int velY,int velR,bool dribble,int dribbleLevel,bool mode,bool shoot,int power,bool report){
+        radioPacket->updateCommandParams(robotID,velX,velY,velR,dribble,dribbleLevel,mode,shoot,power,report);
     }
 
 private:
     QList<QHostAddress> address;
+    QList<QHostAddress> receiveAddress;
     QStringList stringAddress;
     int addressIndex;
     QList<quint8> frequency;
